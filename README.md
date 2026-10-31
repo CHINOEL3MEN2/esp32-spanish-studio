@@ -47,4 +47,6 @@ Precauciones: la preparación de datos se omite si los archivos ya existen; repe
 
 Esta aplicación la **creó un asistente de IA** (asistente con Copilot SDK en VS Code) a petición de @CHINOEL3MEN2, que dirigió el trabajo y probó la placa. Yo escribí la app, los scripts, la depuración y el reentrenamiento.
 
-**Tiempo aproximado: ~2,5 horas** (estimado por marcas de tiempo de archivos): ~1,5 h de entrenamiento y esperas de modelo, ~15–20 min escribiendo el código y ~1 h depurando y probando (incluido el crash).
+**Crear el código de la app llevó unos ~10 minutos** (de las 5:05 a las 5:15, según las marcas de tiempo de los archivos, hasta que compiló y abrió).
+
+El proyecto completo duró ~2,5 horas en total (estimado): ~1,5 h de entrenamiento y esperas de modelo, y el resto depurando y probando (incluido el crash) y flasheando la placa.
