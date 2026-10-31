@@ -1,0 +1,375 @@
+<Window x:Class="Esp32SpanishStudio.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Esp32SpanishStudio"
+        xml:lang="es-ES"
+        Title="ESP32 Spanish Studio" Height="860" Width="1260" MinHeight="640" MinWidth="980"
+        Background="{StaticResource Surface}" FontFamily="Segoe UI" FontSize="13"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:PageVisibilityConverter x:Key="Page" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <DockPanel Background="{StaticResource Sidebar}">
+            <StackPanel DockPanel.Dock="Top" Margin="18,22,18,18">
+                <TextBlock Text="ESP32" Foreground="White" FontSize="12" FontWeight="Bold" Opacity="0.6" />
+                <TextBlock Text="Spanish Studio" Foreground="White" FontSize="21" FontWeight="SemiBold" />
+                <TextBlock Text="Reentrena TinyStories en español" Foreground="{StaticResource SidebarText}"
+                           FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+            <ListBox SelectedIndex="{Binding SelectedPage, Mode=TwoWay}" Background="Transparent" BorderThickness="0"
+                     ItemContainerStyle="{StaticResource NavItem}" IsEnabled="True">
+                <ListBoxItem Content="Inicio" />
+                <ListBoxItem Content="1 · Entorno" />
+                <ListBoxItem Content="2 · Datos" />
+                <ListBoxItem Content="3 · Entrenamiento" />
+                <ListBoxItem Content="4 · Exportar y probar" />
+                <ListBoxItem Content="5 · Flashear" />
+                <ListBoxItem Content="6 · Monitor serie" />
+            </ListBox>
+        </DockPanel>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" MinHeight="260" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="250" MinHeight="120" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Pages -->
+            <Grid Grid.Row="0">
+                <!-- 0 Inicio -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=0}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="Modelo TinyStories en español para ESP32-S3" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Esta herramienta automatiza el flujo completo: descargar cuentos en español, entrenar el modelo PLE de 28,9 M de parámetros, exportarlo y flashearlo a la placa. Todo se ejecuta en tu equipo." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Datos en español preparados" Margin="0,6" />
+                                <TextBlock Grid.Column="1" Text="{Binding DataState}" FontWeight="SemiBold" Margin="0,6" />
+                                <TextBlock Grid.Row="1" Text="Modelo entrenado" Margin="0,6" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrainState}" FontWeight="SemiBold" Margin="0,6" />
+                                <TextBlock Grid.Row="2" Text="Modelo exportado (model.bin)" Margin="0,6" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ExportState}" FontWeight="SemiBold" Margin="0,6" />
+                                <TextBlock Grid.Row="3" Text="Flasheado en esta sesión" Margin="0,6" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DeployState}" FontWeight="SemiBold" Margin="0,6" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel>
+                                <TextBlock Text="Pipeline completo" FontWeight="SemiBold" FontSize="15" />
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,12"
+                                           Text="Ejecuta datos → entrenamiento → exportación → prueba → flasheo con los parámetros de cada pestaña. Antes de escribir en la placa se pide confirmación. Requiere el entorno listo (pestaña 1)." />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Ejecutar pipeline completo" Command="{Binding RunAllCommand}" />
+                                    <Button Content="Cancelar" Style="{StaticResource Danger}" Command="{Binding CancelCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 1 Entorno -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=1}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="1 · Entorno" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Comprueba herramientas y dependencias. «Instalar / reparar» crea el entorno Python y instala PyTorch con CUDA para usar tu GPU." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel>
+                                <TextBlock Text="Carpeta del proyecto esp32-ai" Style="{StaticResource FieldLabel}" Margin="0,0,0,3" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding ProjectRoot, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0" />
+                                    <Button Grid.Column="1" Content="Examinar…" Style="{StaticResource Secondary}"
+                                            Command="{Binding BrowseRootCommand}" Margin="0" />
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Diagnosticar" Command="{Binding CheckEnvironmentCommand}" />
+                                    <Button Content="Instalar / reparar dependencias" Style="{StaticResource Secondary}"
+                                            Command="{Binding InstallDepsCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource CardPanel}">
+                            <ItemsControl ItemsSource="{Binding Checks}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="28" /><ColumnDefinition Width="230" /><ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Icon}" FontWeight="Bold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#12805C" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Warning"><Setter Property="Foreground" Value="#B54708" /></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Error"><Setter Property="Foreground" Value="#D92D20" /></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{StaticResource Muted}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 2 Datos -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=2}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="2 · Datos en español" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Descarga la traducción al español de TinyStories (igorshilov/tinystories_spanish), entrena un tokenizador BPE y genera los archivos de tokens. Se guarda en data/tinystories-es, sin tocar los datos en inglés." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel MaxWidth="520" HorizontalAlignment="Left">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Fragmentos parquet a descargar (1–8, ≈258 MB y 265 mil cuentos cada uno)" Margin="0,0,0,3" />
+                                <TextBox Text="{Binding Shards, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Longitud máxima del cuento en caracteres (1000 ≈ cabe en los 256 tokens del dispositivo; 0 = sin filtro)" />
+                                <TextBox Text="{Binding MaxChars, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Tamaño del vocabulario (máx. 32768; debe coincidir en todo el flujo)" />
+                                <TextBox Text="{Binding VocabSize, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox IsChecked="{Binding AsciiFold}" Margin="0,14,0,0"
+                                          Content="Convertir a ASCII (recomendado para la pantalla del ESP32)" />
+                                <TextBlock Style="{StaticResource Hint}" Margin="22,2,0,0"
+                                           Text="La pantalla solo dibuja caracteres ASCII: á→a, ñ→n y se quitan ¿ ¡. Sin esto, esas letras desaparecerían en la pantalla." />
+                                <Button Content="Preparar datos" Command="{Binding PrepareCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 3 Entrenamiento -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=3}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="3 · Entrenamiento" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Entrena el modelo PLE (96 dim, 6 capas, 28,9 M parámetros). Esa arquitectura es la que cabe en la placa y no se puede cambiar aquí." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Pasos" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding Steps, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Tamaño de lote" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding BatchSize, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Longitud de secuencia" Margin="0,0,0,3" />
+                                    <TextBox Text="{Binding SeqLen, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Tasa de aprendizaje" />
+                                    <TextBox Text="{Binding LearningRate, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Semilla" />
+                                    <TextBox Text="{Binding Seed, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="Etiqueta de la ejecución" />
+                                    <TextBox Text="{Binding RunTag, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="{Binding SeqLenWarning}" Foreground="#B54708" Margin="0,-6,0,10" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <Button Content="Iniciar entrenamiento" Command="{Binding TrainCommand}" />
+                            <Button Content="Cancelar" Style="{StaticResource Danger}" Command="{Binding CancelCommand}" />
+                        </StackPanel>
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel>
+                                <TextBlock Text="Pérdida de validación" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding LastMetrics}" Foreground="{StaticResource Muted}" Margin="0,2,0,8" />
+                                <Border Height="150" BorderBrush="{StaticResource Border}" BorderThickness="1" Background="#FAFBFD" Padding="6">
+                                    <Viewbox Stretch="Fill">
+                                        <Canvas Width="100" Height="100">
+                                            <Polyline Points="{Binding LossPoints}" Stroke="{StaticResource Accent}"
+                                                      StrokeThickness="0.8" StrokeLineJoin="Round" />
+                                        </Canvas>
+                                    </Viewbox>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 4 Exportar y probar -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=4}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="4 · Exportar y probar" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Primero prueba cómo escribe el modelo en tu PC; si te gusta, expórtalo a model.bin (4 bits) en artifacts/tinystories-es." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel MaxWidth="560" HorizontalAlignment="Left">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Inicio del cuento (prompt del dispositivo)" Margin="0,0,0,3" />
+                                <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="16" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource FieldLabel}" Text="Tokens a generar" />
+                                        <TextBox Text="{Binding SampleTokens, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Style="{StaticResource FieldLabel}" Text="Temperatura" />
+                                        <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Probar generación" Command="{Binding SampleCommand}" />
+                                    <Button Content="Exportar model.bin" Command="{Binding ExportCommand}" />
+                                    <Button Content="Abrir carpeta" Style="{StaticResource Secondary}" Command="{Binding OpenArtifactsCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 5 Flashear -->
+                <ScrollViewer Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=5}"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="28">
+                        <TextBlock Style="{StaticResource H1}" Text="5 · Flashear al ESP32-S3" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Regenera el vocabulario y el prompt, verifica en el PC (si hay compilador C), compila el firmware y solo entonces escribe el modelo y el firmware. Reemplaza el modelo que haya en la placa." />
+                        <Border Style="{StaticResource CardPanel}">
+                            <StackPanel MaxWidth="520" HorizontalAlignment="Left">
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Puerto de la placa" Margin="0,0,0,3" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <ComboBox ItemsSource="{Binding Ports}" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"
+                                              SelectedItem="{Binding Port}" IsEditable="True" Margin="0,0,8,0" />
+                                    <Button Grid.Column="1" Content="Actualizar" Style="{StaticResource Secondary}"
+                                            Command="{Binding RefreshPortsCommand}" Margin="0" />
+                                </Grid>
+                                <TextBlock Style="{StaticResource FieldLabel}" Text="Huella esperada del modelo" />
+                                <TextBlock Text="{Binding ExpectedFpText}" FontFamily="Consolas" />
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Compilar y flashear" Command="{Binding DeployCommand}" />
+                                    <Button Content="Cancelar" Style="{StaticResource Danger}" Command="{Binding CancelCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 6 Monitor -->
+                <Grid Margin="28" Visibility="{Binding SelectedPage, Converter={StaticResource Page}, ConverterParameter=6}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Style="{StaticResource H1}" Text="6 · Monitor serie" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,10">
+                        <ComboBox ItemsSource="{Binding Ports}" SelectedItem="{Binding Port}" MinWidth="110" Margin="0,0,8,0"
+                                  IsEnabled="{Binding MonitorIdle}" />
+                        <Button Content="Conectar" Command="{Binding ConnectMonitorCommand}" />
+                        <Button Content="Desconectar" Style="{StaticResource Secondary}" Command="{Binding DisconnectMonitorCommand}" />
+                        <Button Content="Reiniciar placa" Style="{StaticResource Secondary}" Command="{Binding ResetBoardCommand}" />
+                        <Button Content="Limpiar" Style="{StaticResource Secondary}" Command="{Binding ClearMonitorCommand}" />
+                    </StackPanel>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Text="{Binding FpStatus}" FontWeight="SemiBold" Margin="0,0,0,8" TextWrapping="Wrap" />
+                        <TextBox Grid.Row="1" x:Name="MonitorBox" Text="{Binding MonitorText, Mode=OneWay}" IsReadOnly="True"
+                                 Background="{StaticResource LogBack}" Foreground="#D6E2FF" FontFamily="Consolas"
+                                 VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" TextChanged="MonitorBox_TextChanged" />
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="{StaticResource Border}" />
+
+            <!-- Log -->
+            <Grid Grid.Row="2" Background="{StaticResource LogBack}">
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                <DockPanel Margin="14,8">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="Guardar registro" Style="{StaticResource Secondary}" Command="{Binding SaveLogCommand}"
+                                Padding="10,4" FontSize="12" />
+                        <Button Content="Limpiar" Style="{StaticResource Secondary}" Command="{Binding ClearLogCommand}"
+                                Padding="10,4" FontSize="12" Margin="0" />
+                    </StackPanel>
+                    <TextBlock Text="REGISTRO" Foreground="#8A97B4" FontWeight="Bold" FontSize="11" VerticalAlignment="Center" />
+                </DockPanel>
+                <ListBox Grid.Row="1" x:Name="LogList" ItemsSource="{Binding Logs}" Background="Transparent" BorderThickness="0"
+                         VirtualizingPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="14,1" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter Margin="{TemplateBinding Padding}" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Time}" Foreground="#5F6B87" FontFamily="Consolas" Margin="0,0,10,0" />
+                                <TextBlock Text="{Binding Text}" FontFamily="Consolas">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#D6E2FF" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsError}" Value="True">
+                                                    <Setter Property="Foreground" Value="#FF8A80" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <!-- Status bar -->
+            <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource Border}" BorderThickness="0,1,0,0" Padding="16,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" /><ColumnDefinition Width="260" /><ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="2" Text="{Binding ProgressText}" Foreground="{StaticResource Muted}"
+                               VerticalAlignment="Center" Margin="12,0,0,0" />
+                    <ProgressBar Grid.Column="1" Height="10" Minimum="0" Maximum="100" Value="{Binding Progress, Mode=OneWay}"
+                                 IsIndeterminate="{Binding IsIndeterminate}" Foreground="{StaticResource Accent}" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

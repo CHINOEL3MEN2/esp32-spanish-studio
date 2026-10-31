@@ -1,0 +1,45 @@
+diff --git a/research/tinystories/export.py b/research/tinystories/export.py
+index 3d2ce3e..012a4fa 100644
+--- a/research/tinystories/export.py
++++ b/research/tinystories/export.py
+@@ -113,6 +113,7 @@ def verify_tokenizer(ck, tokenizer_path, allow_unverified):
+ 
+ 
+ def main():
++    global OUT
+     ap = argparse.ArgumentParser(description=__doc__)
+     ap.add_argument("tag", nargs="?", default="ple-cleandeploy-s0",
+                     help="checkpoint tag under runs/, without .pt")
+@@ -121,7 +122,10 @@ def main():
+                          "becomes output_vocab")
+     ap.add_argument("--allow-unverified-tokenizer", action="store_true",
+                     help="export from a checkpoint that records no tokenizer hash")
++    ap.add_argument("--out", default=OUT,
++                    help="artifact directory to write model.bin, tokenizer.json and golden files")
+     args = ap.parse_args()
++    OUT = args.out
+     tag = args.tag
+     os.makedirs(OUT, exist_ok=True)
+     ck = torch.load(os.path.join(RUNS, f"{tag}.pt"), map_location="cpu", weights_only=False)
+diff --git a/research/tinystories/train.py b/research/tinystories/train.py
+index e6f5ee3..56b4c34 100644
+--- a/research/tinystories/train.py
++++ b/research/tinystories/train.py
+@@ -93,6 +93,8 @@ def main():
+     ap.add_argument("--vocab", type=int, default=32768)
+     ap.add_argument("--seed", type=int, default=0)
+     ap.add_argument("--tag", default="")
++    ap.add_argument("--dataset", default="tinystories",
++                    help="folder under data/ holding vocab-<N>/ (tokenizer + bins)")
+     args = ap.parse_args()
+ 
+     # Before anything expensive: the tokenizer that produced these bins. Its
+@@ -103,7 +105,7 @@ def main():
+         raise SystemExit(f"--vocab must be 1..65536; the token bins are uint16 "
+                          f"and are memmapped as uint16")
+ 
+-    dataset = variant_dir(args.vocab)
++    dataset = DATA.parent / args.dataset / f"vocab-{args.vocab}"
+     tok_path = dataset / "tokenizer.json"
+     if not os.path.exists(tok_path):
+         raise SystemExit(
